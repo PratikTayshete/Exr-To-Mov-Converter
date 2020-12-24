@@ -1,4 +1,4 @@
-# Exr-To-Mov-Converter-PySide2
+# Exr-To-Mov-Converter
 It is a simple converter that converts EXR sequences to a MOV file using PySide2 and FFmpeg.
 
 The application works as follows:
