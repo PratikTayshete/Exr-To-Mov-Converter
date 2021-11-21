@@ -1,93 +1,147 @@
 import sys
-import os
-import subprocess
 from PySide2.QtWidgets import (QApplication, QMainWindow)
-from gui.converterUI import Ui_MainAppWindow
-from utils import converter_utils
+from PySide2 import QtCore
+from gui.converterUI import Ui_Converter
+from lib import converter
+from utils import tools, constants
 
 
-class MainAppWindow(QMainWindow, Ui_MainAppWindow):
+class ConverterWindow(QMainWindow, Ui_Converter):
     def __init__(self):
-        QMainWindow.__init__(self)
-        Ui_MainAppWindow.__init__(self)
+        super(ConverterWindow, self).__init__()
         self.setupUi(self)
-        self.movFolderButton.setDisabled(True)
-        self.conversionButton.setDisabled(True)
-        self.mov_folder_path = ""
-        self.exr_folder_path = ""
-        self.exrFolderButton.clicked.connect(self.open_exr_folder)
-        self.movFolderButton.clicked.connect(self.open_mov_folder)
-        self.conversionButton.clicked.connect(self.convert_exr_to_mov)
+        self.setWindowFlags(
+            QtCore.Qt.WindowMinimizeButtonHint |
+            QtCore.Qt.WindowCloseButtonHint
+        )
+        self.dialogs = tools.Dialogs()
+        self.check_env()
+        self.is_exr_folder_valid = False
+        self.converter = converter.Converter()
+        self.connect_widgets()
 
-    def convert_exr_to_mov(self):
+    def check_env(self):
         """
-        Converts the exr sequences to a mov file.
+        Checks if required parameters is added as environment variable.
         """
-        self.conversionLogTextEdit.appendPlainText("Converting......")
-        converted_video_name = "mov_converted"
-        converted_video_extension = ".mov"
-        abs_mov_file_path = os.path.join(self.mov_folder_path, converted_video_name + converted_video_extension)
-        # Get the first file name of the exr sequences
-        single_exr_file_path = sorted(os.listdir(self.exr_folder_path))[0]
-        abs_single_exr_file_path = os.path.join(self.exr_folder_path, single_exr_file_path)
-        start_frame_number, abs_path_with_padding = converter_utils.get_frame_number_and_path(abs_single_exr_file_path)
-        return_code = subprocess.call(
-            ['C:\\Users\\pratk\\Downloads\\ffmpeg-N-104495-g945b2dcc63-win64-gpl\\bin\\ffmpeg.exe', '-hide_banner', '-loglevel', 'quiet', '-y', '-start_number', start_frame_number, '-i',
-             abs_path_with_padding, '-vcodec', 'mpeg4', abs_mov_file_path])
-
-        if return_code != 0:
-            self.conversionLogTextEdit.appendPlainText("\nSome error occured while conversion")
+        if constants.FFMPEG_EXECUTABLE is None:
+            message = """
+            Add FFMPEG executable file path in your environment
+            eg: FFMPEG_EXECUTABLE=Path/to/the/file/ffmpeg.exe
+            """
+            self.dialogs.message_dialog("FFMPEG WARNING!!", message)
+            self.close()
         else:
-            if os.path.isfile(abs_mov_file_path):
-                self.conversionLogTextEdit.appendPlainText("\nConversion completed successfully..")
-                self.conversionLogTextEdit.appendPlainText("\n\n----MOV File Details:----")
-                self.conversionLogTextEdit.appendPlainText("File Path:\t{}".format(abs_mov_file_path))
-                video_file_size = converter_utils.get_video_size(abs_mov_file_path, 2)
-                self.conversionLogTextEdit.appendPlainText(
-                    "File Size:\t{} {}".format(video_file_size[0], video_file_size[1]))
-                self.conversionLogTextEdit.appendPlainText("File Duration:\t{}".format(converter_utils.get_video_duration(abs_mov_file_path)))
+            self.show()
 
-    def open_mov_folder(self):
+    def connect_widgets(self):
         """
-        Reads the path to the directory where MOV file is to be saved after conversion.
+        Connect the signals generated from the widgets with their
+        functionalities.
         """
-        self.mov_folder_path = converter_utils.file_open_dialog()
-        mov_message_header = "----MOV Directory----"
-        if not self.mov_folder_path:
-            self.conversionLogTextEdit.appendPlainText(
-                mov_message_header + "\n" + "Please select a destination directory for MOV file.")
-        else:
-            self.conversionLogTextEdit.appendPlainText(
-                mov_message_header + "\n\n" + "Current MOV directory selected:\t" + self.mov_folder_path)
-            self.conversionButton.setEnabled(True)
+        self.browse_exr_folder_pushButton.clicked.connect(
+            self.select_exr_folder
+        )
+        self.browse_output_folder_pushButton.clicked.connect(
+            self.select_output_folder
+        )
+        self.convert_pushButton.clicked.connect(self.convert_images)
 
-    def open_exr_folder(self):
+    def select_exr_folder(self):
         """
-        Reads the path to the directory where the EXR sequences are stored.
+        Select the directory where exr image sequences are saved.
         """
-        self.conversionLogTextEdit.clear()
-        self.exr_folder_path = converter_utils.file_open_dialog()
-        if not self.exr_folder_path:
-            self.conversionLogTextEdit.clear()
-            self.conversionLogTextEdit.setPlainText("Please select an exr sequence directory")
-        else:
-            all_exr_files_flag = converter_utils.check_exr_files(self.exr_folder_path)
-            exr_message_header = "----EXR Sequences----"
-            if all_exr_files_flag:
-                self.movFolderButton.setEnabled(True)
-                total_exr_files = len(os.listdir(self.exr_folder_path))
-                exr_folder_message = exr_message_header + "\n\nEXR sequences folder selected:\t" + self.exr_folder_path + "\n\nTotal EXR files detected:\t" + str(
-                    total_exr_files)
-                self.conversionLogTextEdit.setPlainText(exr_folder_message)
-
+        self.exr_folder_path_lineEdit.clear()
+        exr_directory = self.dialogs.file_dialog()
+        if exr_directory != "":
+            is_dir_valid = self.converter.check_exr_files(
+                dir_path=exr_directory
+            )
+            if not is_dir_valid:
+                self.is_exr_folder_valid = False
+                message = "Please select a folder that contains only exr " \
+                          "image sequences"
+                self.dialogs.message_dialog(
+                    "Invalid EXR Folder", message
+                 )
             else:
-                exr_folder_message = exr_message_header + "\n\nWrong file type detected. Please check the path and try " \
-                                                          "again. "
-                self.conversionLogTextEdit.setPlainText(exr_folder_message)
+                self.exr_folder_path_lineEdit.setText(exr_directory)
+                self.is_exr_folder_valid = True
+
+        else:
+            self.exr_folder_path_lineEdit.clear()
+
+    def select_output_folder(self):
+        """
+        Select the directory where the output mov will be saved.
+        """
+        self.output_folder_path_lineEdit.clear()
+        output_directory = self.dialogs.file_dialog()
+        if output_directory == "":
+            self.output_folder_path_lineEdit.clear()
+        else:
+            self.output_folder_path_lineEdit.setText(output_directory)
+
+    def convert_images(self):
+        """
+        Converts the exr image sequences into an mov file.
+        """
+        are_paths_valid = self.validate_paths()
+        if are_paths_valid:
+            input_dir = self.exr_folder_path_lineEdit.text()
+            output_dir = self.output_folder_path_lineEdit.text()
+            self.progressBar.setValue(50)
+            conversion_params = self.converter.convert_exr_mov(
+                input_dir=input_dir,
+                output_dir=output_dir
+            )
+            self.progressBar.setValue(100)
+            if conversion_params.get("status"):
+                message = f"""
+                {conversion_params.get("output_path")}
+                File Size: {conversion_params.get("file_size")}
+                """
+                self.dialogs.message_dialog("Conversion Successful", message)
+                self.progressBar.setValue(0)
+                self.exr_folder_path_lineEdit.clear()
+                self.output_folder_path_lineEdit.clear()
+            else:
+                message = "Some error occurred in the conversion process."
+                self.dialogs.message_dialog("Conversion Failed", message)
+                self.progressBar.setValue(0)
+                self.exr_folder_path_lineEdit.clear()
+                self.output_folder_path_lineEdit.clear()
+
+    def validate_paths(self):
+        """
+        Validates both the exr images directory and the output directory
+
+        :return is_valid: True if both the exr images directory and
+        output directory paths are valid.
+        :rtype: bool
+        """
+        is_valid = False
+        input_dir = self.exr_folder_path_lineEdit.text()
+        output_dir = self.output_folder_path_lineEdit.text()
+        # Check for empty paths.
+        if input_dir == "":
+            self.dialogs.message_dialog(
+                "EXR Images Path",
+                "Please select a folder with exr image sequences."
+            )
+            return is_valid
+        if output_dir == "":
+            self.dialogs.message_dialog(
+                "Output Path",
+                "Please select a folder for the output mov file."
+            )
+            return is_valid
+        if self.is_exr_folder_valid:
+            is_valid = True
+        return is_valid
 
 
 if __name__ == '__main__':
     app = QApplication()
-    mainAppWindow = MainAppWindow()
-    mainAppWindow.show()
+    converter_window = ConverterWindow()
     sys.exit(app.exec_())
