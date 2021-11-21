@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Converter</class>
+ <widget class="QMainWindow" name="Converter">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>168</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Segoe UI Semibold</family>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>EXR to MOV converter V1.0</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(60, 63, 65);
+color: rgb(255, 255, 255);</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>5</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="exr_folder_path_lineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>669</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLineEdit {
+	color: rgb(255, 255, 255);
+	background-color: rgb(43, 43, 43);
+}</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="browse_exr_folder_pushButton">
+        <property name="minimumSize">
+         <size>
+          <width>105</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	
+	background-color: rgb(6, 150, 215);
+	color: rgb(255, 255, 255);
+}
+
+QPushButton:pressed {
+	background-color: rgb(25, 118, 210);
+	color: rgb(255, 255, 255);
+}</string>
+        </property>
+        <property name="text">
+         <string>EXR Folder</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>5</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="output_folder_path_lineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>669</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLineEdit {
+	color: rgb(255, 255, 255);
+	background-color: rgb(43, 43, 43);
+}</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="browse_output_folder_pushButton">
+        <property name="minimumSize">
+         <size>
+          <width>105</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	
+	background-color: rgb(6, 150, 215);
+	color: rgb(255, 255, 255);
+}
+
+QPushButton:pressed {
+	background-color: rgb(25, 118, 210);
+	color: rgb(255, 255, 255);
+}</string>
+        </property>
+        <property name="text">
+         <string>Output Folder</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="0">
+     <widget class="QPushButton" name="convert_pushButton">
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+	background-color: rgb(124, 179, 66);
+	color: rgb(255, 255, 255);
+}
+
+QPushButton:pressed {
+	background-color: rgb(104, 159, 56);
+	color: rgb(255, 255, 255);
+}</string>
+      </property>
+      <property name="text">
+       <string>Convert</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QProgressBar" name="progressBar">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>5</height>
+       </size>
+      </property>
+      <property name="value">
+       <number>0</number>
+      </property>
+      <property name="textVisible">
+       <bool>false</bool>
+      </property>
+      <property name="format">
+       <string/>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
