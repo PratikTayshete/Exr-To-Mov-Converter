@@ -1,0 +1,4 @@
+PySide2==5.15.2
+shiboken2==5.15.2
+python-dotenv==0.19.2
+pyinstaller==4.7
