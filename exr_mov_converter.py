@@ -32,7 +32,7 @@ class MainAppWindow(QMainWindow, Ui_MainAppWindow):
         abs_single_exr_file_path = os.path.join(self.exr_folder_path, single_exr_file_path)
         start_frame_number, abs_path_with_padding = converter_utils.get_frame_number_and_path(abs_single_exr_file_path)
         return_code = subprocess.call(
-            ['ffmpeg', '-hide_banner', '-loglevel', 'quiet', '-y', '-start_number', start_frame_number, '-i',
+            ['C:\\Users\\pratk\\Downloads\\ffmpeg-N-104495-g945b2dcc63-win64-gpl\\bin\\ffmpeg.exe', '-hide_banner', '-loglevel', 'quiet', '-y', '-start_number', start_frame_number, '-i',
              abs_path_with_padding, '-vcodec', 'mpeg4', abs_mov_file_path])
 
         if return_code != 0:
